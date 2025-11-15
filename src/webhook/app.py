@@ -21,6 +21,10 @@ line_client = get_line_client()
 line_bot_api = line_client.get_api()
 handler = line_client.get_handler()
 
+# 重要：導入 handlers 模組以註冊事件處理器
+# 這會執行 handlers.py 中的 @handler.add() 裝飾器
+import src.webhook.handlers  # noqa: F401
+
 
 @app.route("/")
 def index():
