@@ -3,7 +3,7 @@
 **Feature Branch**: `001-line-message-logger`
 **Created**: 2025-11-15
 **Status**: Draft
-**Input**: 透過 LINE 記錄每條訊息，貼圖時記下時間及圖；文字則記下時間及文字；以月為單位放在 Google Sheet 中，每個月個子表單，子表單中以週為單位做劃分
+**Input**: 透過 LINE 記錄每條訊息，上傳圖片/照片時記下時間及圖片；文字則記下時間及文字；以月為單位放在 Google Sheet 中，每個月個子表單，子表單中以週為單位做劃分
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -23,19 +23,19 @@
 
 ---
 
-### User Story 2 - 記錄 LINE 貼圖訊息 (Priority: P1)
+### User Story 2 - 記錄 LINE 圖片/照片訊息 (Priority: P1)
 
-使用者透過 LINE 傳送貼圖給 Bot，系統自動將貼圖資訊和時間記錄到 Google Sheets。
+使用者透過 LINE 上傳圖片或照片給 Bot，系統自動將圖片 URL 或縮圖連結及時間記錄到 Google Sheets。
 
-**Why this priority**: 貼圖是 LINE 的重要溝通方式，記錄貼圖能更完整地捕捉使用者的生活記錄和情緒狀態。
+**Why this priority**: 圖片/照片是使用者記錄生活的重要方式，能夠捕捉視覺化的生活片段和重要時刻。
 
-**Independent Test**: 可以透過傳送一個 LINE 貼圖，然後檢查 Google Sheets 是否正確記錄時間和貼圖資訊（如貼圖 ID 或描述）來獨立測試此功能。
+**Independent Test**: 可以透過上傳一張 LINE 圖片/照片，然後檢查 Google Sheets 是否正確記錄時間和圖片連結來獨立測試此功能。
 
 **Acceptance Scenarios**:
 
-1. **Given** 使用者已加入 LINE Bot 好友，**When** 使用者傳送一個貼圖，**Then** Google Sheets 中會新增一筆記錄，包含當前時間和貼圖識別資訊
-2. **Given** 使用者已加入 LINE Bot 好友，**When** 使用者連續傳送多個不同貼圖，**Then** Google Sheets 中會依序記錄每個貼圖及其對應時間
-3. **Given** 使用者已加入 LINE Bot 好友，**When** 使用者傳送官方貼圖或自訂貼圖，**Then** 系統都能正確識別並記錄
+1. **Given** 使用者已加入 LINE Bot 好友，**When** 使用者上傳一張圖片/照片，**Then** Google Sheets 中會新增一筆記錄，包含當前時間和圖片連結
+2. **Given** 使用者已加入 LINE Bot 好友，**When** 使用者連續上傳多張不同圖片/照片，**Then** Google Sheets 中會依序記錄每張圖片及其對應時間
+3. **Given** 使用者已加入 LINE Bot 好友，**When** 使用者上傳不同格式的圖片（JPG、PNG、GIF），**Then** 系統都能正確識別並記錄圖片連結
 
 ---
 
@@ -82,7 +82,7 @@
 **Acceptance Scenarios**:
 
 1. **Given** 使用者已加入 LINE Bot 好友，**When** 使用者傳送文字訊息，**Then** Bot 在 3 秒內回覆「已記錄 ✓」
-2. **Given** 使用者已加入 LINE Bot 好友，**When** 使用者傳送貼圖，**Then** Bot 在 3 秒內回覆「已記錄 ✓」
+2. **Given** 使用者已加入 LINE Bot 好友，**When** 使用者上傳圖片/照片，**Then** Bot 在 3 秒內回覆「已記錄 ✓」
 3. **Given** 系統發生錯誤無法記錄，**When** 使用者傳送訊息，**Then** Bot 回覆錯誤訊息如「記錄失敗，請稍後再試」
 
 ---
@@ -90,7 +90,9 @@
 ### Edge Cases
 
 - **空訊息處理**: 當 LINE 傳送空白或僅包含空格的訊息時，系統如何處理？
-- **訊息類型未支援**: 當使用者傳送圖片、影片、音訊等其他類型訊息時，系統如何處理？
+- **訊息類型未支援**: 當使用者傳送貼圖、影片、音訊等其他類型訊息時，系統如何處理？是否需要記錄或忽略？
+- **圖片連結失效**: LINE 圖片 URL 可能有時效性，如何確保長期可存取？是否需要下載並儲存到其他空間？
+- **圖片大小限制**: 是否需要限制可記錄的圖片大小？超過限制時如何處理？
 - **Google Sheets API 限制**: 當達到 Google Sheets API 配額限制時，系統如何處理？
 - **時區問題**: 系統記錄的時間是使用哪個時區？如何處理跨時區使用情境？
 - **月份表單命名衝突**: 如何確保月份表單名稱不會與現有表單名稱衝突？
@@ -102,10 +104,10 @@
 ### Functional Requirements
 
 - **FR-001**: 系統必須能接收並處理 LINE 文字訊息
-- **FR-002**: 系統必須能接收並處理 LINE 貼圖訊息
+- **FR-002**: 系統必須能接收並處理 LINE 圖片/照片訊息
 - **FR-003**: 系統必須記錄每則訊息的接收時間（精確到秒）
 - **FR-004**: 系統必須將文字訊息的完整內容儲存到 Google Sheets
-- **FR-005**: 系統必須將貼圖的識別資訊（Package ID、Sticker ID）儲存到 Google Sheets
+- **FR-005**: 系統必須將圖片/照片的連結或 URL 儲存到 Google Sheets [NEEDS CLARIFICATION: 是否需要將圖片下載並永久儲存？]
 - **FR-006**: 系統必須能存取並寫入指定的 Google Sheets 試算表
 - **FR-007**: 系統必須依照月份（YYYY-MM 格式）建立或選擇對應的子表單
 - **FR-008**: 系統必須在子表單中以週為單位插入分界標記
@@ -118,8 +120,8 @@
 
 - **Message Record（訊息記錄）**:
   - 時間戳記（timestamp）：訊息接收的日期時間
-  - 訊息類型（message_type）：文字或貼圖
-  - 內容（content）：文字訊息的內容或貼圖的識別資訊
+  - 訊息類型（message_type）：文字或圖片
+  - 內容（content）：文字訊息的內容或圖片的 URL 連結
   - 使用者 ID（user_id）：LINE 使用者的唯一識別碼
   - 記錄狀態（status）：成功、失敗、待重試
 
@@ -138,7 +140,7 @@
 ### Measurable Outcomes
 
 - **SC-001**: 使用者傳送訊息後，95% 的訊息能在 2 秒內成功記錄到 Google Sheets
-- **SC-002**: 系統能正確識別並記錄至少 100 種不同的 LINE 貼圖
+- **SC-002**: 系統能正確識別並記錄不同格式（JPG、PNG、GIF）的圖片，圖片連結可正常存取
 - **SC-003**: 月份子表單能自動建立，無需手動介入
 - **SC-004**: 使用者能在 Google Sheets 中清楚辨識不同週的記錄，週分界標記清晰可見
 - **SC-005**: 系統在連續 30 天運作期間，記錄準確率達到 99% 以上
