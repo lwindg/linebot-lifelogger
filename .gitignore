@@ -6,6 +6,7 @@ service_account.json
 .env
 .env.local
 .env.*.local
+.env.production
 
 # Python
 __pycache__/

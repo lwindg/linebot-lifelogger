@@ -28,7 +28,8 @@ class Config:
     FLASK_ENV = os.getenv('FLASK_ENV', 'development')
     FLASK_DEBUG = os.getenv('FLASK_DEBUG', '0') == '1'
     FLASK_HOST = os.getenv('FLASK_HOST', '0.0.0.0')
-    FLASK_PORT = int(os.getenv('FLASK_PORT', '5000'))
+    # Cloud Run 使用 PORT，本地開發使用 FLASK_PORT
+    FLASK_PORT = int(os.getenv('PORT', os.getenv('FLASK_PORT', '5000')))
 
     # 日誌設定
     LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
