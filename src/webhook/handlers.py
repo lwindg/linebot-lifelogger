@@ -103,6 +103,15 @@ def handle_text_message(event):
         record.status = MessageStatus.SUCCESS
         logger.info("文字訊息處理完成")
 
+        # 步驟 8: 回覆確認訊息
+        try:
+            reply_text = "✅ 已記錄"
+            line_client.reply_message(event.reply_token, reply_text)
+            logger.info(f"已回覆確認訊息: {reply_text}")
+        except Exception as e:
+            logger.warning(f"回覆訊息失敗: {e}")
+            # 回覆失敗不影響主要功能，只記錄警告
+
     except Exception as e:
         logger.error(f"處理文字訊息時發生錯誤: {e}", exc_info=True)
         # 不拋出異常，避免影響 LINE webhook 回應
