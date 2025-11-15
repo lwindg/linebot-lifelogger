@@ -1,1 +1,1 @@
-# linebot-gpt-lifelog
+# linebot-lifelog
