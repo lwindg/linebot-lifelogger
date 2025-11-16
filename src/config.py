@@ -18,7 +18,12 @@ class Config:
     # Google API 設定
     GOOGLE_CREDENTIALS_FILE = os.getenv('GOOGLE_CREDENTIALS_FILE', 'service_account.json')
     SPREADSHEET_ID = os.getenv('SPREADSHEET_ID')
-    DRIVE_FOLDER_ID = os.getenv('DRIVE_FOLDER_ID')
+
+    # Google Cloud Storage 設定（Phase 4 圖片訊息）
+    STORAGE_BUCKET_NAME = os.getenv('STORAGE_BUCKET_NAME')
+
+    # Google Drive 設定（已棄用，改用 Cloud Storage）
+    # DRIVE_FOLDER_ID = os.getenv('DRIVE_FOLDER_ID')
 
     # LINE Bot 設定
     LINE_CHANNEL_ACCESS_TOKEN = os.getenv('LINE_CHANNEL_ACCESS_TOKEN')

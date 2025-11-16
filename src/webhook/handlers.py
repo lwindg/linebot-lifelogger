@@ -129,7 +129,7 @@ def handle_image_message(event):
     from src.models.message import MessageRecord, MessageStatus
     from src.services.time_utils import convert_line_timestamp_to_taiwan, get_week_number, is_new_week
     from src.services.sheets_client import get_sheets_client
-    from src.services.drive_client import get_drive_client
+    from src.services.storage_client import get_storage_client
     from src.services.image_processor import ImageProcessor
     from datetime import datetime
 
@@ -149,14 +149,14 @@ def handle_image_message(event):
         compressed_image, mime_type = ImageProcessor.compress_image(image_content)
         logger.info(f"圖片壓縮完成，壓縮後大小: {len(compressed_image) / 1024:.1f}KB")
 
-        # 步驟 3: 上傳到 Google Drive
+        # 步驟 3: 上傳到 Google Cloud Storage
         taiwan_time = convert_line_timestamp_to_taiwan(event.timestamp)
         filename = f"linebot_{taiwan_time.strftime('%Y%m%d_%H%M%S')}_{event.message.id}.jpg"
 
-        logger.info(f"上傳圖片到 Google Drive: {filename}")
-        drive_client = get_drive_client()
-        drive_client.connect()
-        image_url = drive_client.upload_image(compressed_image, filename, mime_type)
+        logger.info(f"上傳圖片到 Cloud Storage: {filename}")
+        storage_client = get_storage_client()
+        storage_client.connect()
+        image_url = storage_client.upload_image(compressed_image, filename, mime_type)
         logger.info(f"圖片上傳成功: {image_url}")
 
         # 步驟 4: 轉換時間為台灣時區

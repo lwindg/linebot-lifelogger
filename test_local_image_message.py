@@ -67,11 +67,13 @@ def verify_env():
     logger.info("✅ 必要環境變數已設定")
     logger.info("")
 
-    # 檢查 DRIVE_FOLDER_ID（選用）
-    if Config.DRIVE_FOLDER_ID:
-        logger.info(f"✅ Drive 資料夾 ID: {Config.DRIVE_FOLDER_ID}")
+    # 檢查 STORAGE_BUCKET_NAME（必要）
+    if Config.STORAGE_BUCKET_NAME:
+        logger.info(f"✅ Storage Bucket: {Config.STORAGE_BUCKET_NAME}")
     else:
-        logger.warning("⚠️  未設定 DRIVE_FOLDER_ID（圖片會上傳到 Drive 根目錄）")
+        logger.error("❌ 未設定 STORAGE_BUCKET_NAME")
+        logger.error("請參考 GOOGLE_CLOUD_STORAGE_SETUP.md 建立 bucket 並設定環境變數")
+        return False
 
     logger.info("")
     return True
@@ -113,14 +115,14 @@ def test_image_compression():
         return None
 
 
-def test_drive_upload(image_data, mime_type):
-    """測試 Google Drive 上傳"""
+def test_storage_upload(image_data, mime_type):
+    """測試 Google Cloud Storage 上傳"""
     logger.info("=" * 60)
-    logger.info("測試 Google Drive 上傳...")
+    logger.info("測試 Cloud Storage 上傳...")
     logger.info("=" * 60)
 
     try:
-        from src.services.drive_client import get_drive_client
+        from src.services.storage_client import get_storage_client
         from src.services.time_utils import TAIWAN_TZ
         from datetime import datetime
 
@@ -131,11 +133,11 @@ def test_drive_upload(image_data, mime_type):
         logger.info(f"檔案名稱: {filename}")
         logger.info(f"檔案大小: {len(image_data) / 1024:.1f}KB")
 
-        # 上傳到 Drive
-        drive_client = get_drive_client()
-        drive_client.connect()
+        # 上傳到 Cloud Storage
+        storage_client = get_storage_client()
+        storage_client.connect()
 
-        image_url = drive_client.upload_image(image_data, filename, mime_type)
+        image_url = storage_client.upload_image(image_data, filename, mime_type)
 
         logger.info(f"✅ 上傳成功！")
         logger.info(f"圖片 URL: {image_url}")
@@ -144,7 +146,7 @@ def test_drive_upload(image_data, mime_type):
         return image_url
 
     except Exception as e:
-        logger.error(f"❌ Drive 上傳失敗: {e}", exc_info=True)
+        logger.error(f"❌ Storage 上傳失敗: {e}", exc_info=True)
         return None
 
 
@@ -283,10 +285,10 @@ def main():
 
     compressed_data, mime_type = result
 
-    # 步驟 3: 測試 Drive 上傳
-    image_url = test_drive_upload(compressed_data, mime_type)
+    # 步驟 3: 測試 Cloud Storage 上傳
+    image_url = test_storage_upload(compressed_data, mime_type)
     if image_url is None:
-        logger.error("❌ Drive 上傳測試失敗，測試中止")
+        logger.error("❌ Storage 上傳測試失敗，測試中止")
         sys.exit(1)
 
     # 步驟 4: 測試訊息記錄
@@ -306,7 +308,7 @@ def main():
     logger.info("1. 開啟 Google Sheets 試算表")
     logger.info("2. 檢查當前月份的工作表")
     logger.info("3. 確認圖片是否正確顯示（IMAGE 公式）")
-    logger.info("4. 開啟 Google Drive 確認圖片已上傳")
+    logger.info("4. 開啟 Google Cloud Storage bucket 確認圖片已上傳")
     logger.info("")
 
 
