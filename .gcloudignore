@@ -1,0 +1,45 @@
+# Git
+.git/
+.github/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+venv/
+env/
+ENV/
+.venv/
+
+# 測試
+.pytest_cache/
+.coverage
+htmlcov/
+tests/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# 環境變數（敏感資訊）
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# 本地測試檔案
+test_*.py
+diagnose_*.py
+
+# 文檔
+*.md
+!README.md
+docs/
+specs/
+
+# 其他
+.DS_Store
+Thumbs.db
+*.log

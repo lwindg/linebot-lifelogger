@@ -72,9 +72,12 @@ check_gcp_config() {
 
 # 函式：建置 Docker image
 build_image() {
-    print_step "建置 Docker image..."
+    print_step "使用 Cloud Build 建置 Docker image..."
 
-    docker build -t "$IMAGE_NAME:latest" .
+    # 使用 Cloud Build 在雲端建置（支援多平台）
+    gcloud builds submit \
+        --tag "$IMAGE_NAME:latest" \
+        --timeout=10m
 
     if [ $? -eq 0 ]; then
         print_success "Docker image 建置成功"
@@ -86,19 +89,8 @@ build_image() {
 
 # 函式：推送 image 到 GCR
 push_image() {
-    print_step "推送 image 到 Google Container Registry..."
-
-    # 配置 Docker 認證
-    gcloud auth configure-docker --quiet
-
-    docker push "$IMAGE_NAME:latest"
-
-    if [ $? -eq 0 ]; then
-        print_success "Image 推送成功"
-    else
-        print_error "Image 推送失敗"
-        exit 1
-    fi
+    print_step "Cloud Build 已自動推送 image"
+    print_success "Image 已在 Container Registry"
 }
 
 # 函式：部署到 Cloud Run
