@@ -25,6 +25,13 @@ class DriveClient:
         self.folder_id = Config.DRIVE_FOLDER_ID
         self.credentials_file = Config.GOOGLE_CREDENTIALS_FILE
 
+        # 檢查 DRIVE_FOLDER_ID 是否設定
+        if not self.folder_id:
+            logger.error("DRIVE_FOLDER_ID 未設定")
+            logger.error("Service Account 沒有自己的儲存空間，必須上傳到使用者的資料夾")
+            logger.error("請在 .env 設定 DRIVE_FOLDER_ID，並將該資料夾分享給 Service Account")
+            raise ValueError("DRIVE_FOLDER_ID is required for Service Account uploads")
+
         # 設定權限範圍
         self.scopes = [
             'https://www.googleapis.com/auth/drive.file'
@@ -32,7 +39,7 @@ class DriveClient:
 
         self._service = None
 
-        logger.info("DriveClient 初始化完成")
+        logger.info(f"DriveClient 初始化完成，目標資料夾: {self.folder_id}")
 
     def connect(self):
         """
