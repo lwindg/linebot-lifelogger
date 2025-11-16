@@ -197,11 +197,11 @@ def test_image_message(image_url, message_id="test_image_001", user_id="test_use
         if worksheet is None:
             logger.info(f"建立新工作表: {month_title}")
             worksheet = sheets_client.create_worksheet(month_title, rows=1000, cols=3)
-            worksheet.append_row(['時間', '類型', '內容'])
+            worksheet.append_row(['時間', '類型', '內容'], value_input_option='USER_ENTERED')
 
         # 寫入訊息
         row = record.to_sheet_row()
-        worksheet.append_row(row)
+        worksheet.append_row(row, value_input_option='USER_ENTERED')
 
         logger.info("✅ 成功寫入訊息到 Google Sheets")
         logger.info("")

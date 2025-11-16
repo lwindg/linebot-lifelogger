@@ -65,7 +65,7 @@ def handle_text_message(event):
             worksheet = sheets_client.create_worksheet(month_title, rows=1000, cols=3)
 
             # 寫入表頭
-            worksheet.append_row(['時間', '類型', '內容'])
+            worksheet.append_row(['時間', '類型', '內容'], value_input_option='USER_ENTERED')
             logger.info(f"已建立工作表 '{month_title}' 並寫入表頭")
 
         # 步驟 6: 檢查是否需要插入週分隔線
@@ -88,7 +88,7 @@ def handle_text_message(event):
                     if is_new_week(taiwan_time, last_time):
                         week_num = get_week_number(taiwan_time)
                         separator = f"--- 第 {week_num} 週 ---"
-                        worksheet.append_row([separator, '', ''])
+                        worksheet.append_row([separator, '', ''], value_input_option='USER_ENTERED')
                         logger.info(f"插入週分隔線: {separator}")
 
                 except Exception as e:
@@ -96,7 +96,7 @@ def handle_text_message(event):
 
         # 步驟 7: 寫入訊息到 Google Sheets
         row = record.to_sheet_row()
-        worksheet.append_row(row)
+        worksheet.append_row(row, value_input_option='USER_ENTERED')
         logger.info(f"成功寫入訊息到 Google Sheets: {month_title}")
 
         # 更新狀態為成功
@@ -181,7 +181,7 @@ def handle_image_message(event):
         if worksheet is None:
             logger.info(f"工作表 '{month_title}' 不存在，建立新工作表")
             worksheet = sheets_client.create_worksheet(month_title, rows=1000, cols=3)
-            worksheet.append_row(['時間', '類型', '內容'])
+            worksheet.append_row(['時間', '類型', '內容'], value_input_option='USER_ENTERED')
             logger.info(f"已建立工作表 '{month_title}' 並寫入表頭")
 
         # 步驟 8: 檢查是否需要插入週分隔線
@@ -199,7 +199,7 @@ def handle_image_message(event):
                     if is_new_week(taiwan_time, last_time):
                         week_num = get_week_number(taiwan_time)
                         separator = f"--- 第 {week_num} 週 ---"
-                        worksheet.append_row([separator, '', ''])
+                        worksheet.append_row([separator, '', ''], value_input_option='USER_ENTERED')
                         logger.info(f"插入週分隔線: {separator}")
 
                 except Exception as e:
@@ -207,7 +207,7 @@ def handle_image_message(event):
 
         # 步驟 9: 寫入訊息到 Google Sheets
         row = record.to_sheet_row()
-        worksheet.append_row(row)
+        worksheet.append_row(row, value_input_option='USER_ENTERED')
         logger.info(f"成功寫入圖片訊息到 Google Sheets: {month_title}")
 
         # 更新狀態為成功
