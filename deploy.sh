@@ -116,9 +116,9 @@ deploy_to_cloudrun() {
 
     # 建立 Cloud Run 環境變數檔案
     print_step "建立環境變數設定檔..."
-    cat > .env.yaml << 'EOF'
-# Cloud Run Environment Variables (Auto-generated)
-EOF
+
+    # 清空檔案
+    > .env.yaml
 
     # 從 .env.production 讀取並轉換為 YAML 格式
     while IFS='=' read -r key value; do
@@ -127,11 +127,15 @@ EOF
             continue
         fi
 
-        # 移除前後的引號
+        # 移除前後的引號（單引號和雙引號）
         value=$(echo "$value" | sed -e "s/^'//" -e "s/'$//" -e 's/^"//' -e 's/"$//')
 
-        # 寫入 YAML（對於特殊字元用雙引號包裹）
-        echo "${key}: \"${value}\"" >> .env.yaml
+        # 對於 YAML，使用單引號包裹值（因為 JSON 內部使用雙引號）
+        # 單引號內的單引號需要轉義為 ''
+        value_escaped=$(echo "$value" | sed "s/'/''/g")
+
+        # 寫入 YAML
+        echo "${key}: '${value_escaped}'" >> .env.yaml
     done < .env.production
 
     print_success "環境變數設定檔已建立"
