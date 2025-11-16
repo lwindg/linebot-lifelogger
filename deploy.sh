@@ -105,15 +105,36 @@ push_image() {
 deploy_to_cloudrun() {
     print_step "部署到 Cloud Run..."
 
-    # 檢查是否需要設定環境變數
-    if [ -f ".env.production" ]; then
-        print_warning "找到 .env.production，將從中讀取環境變數"
-
-        # 讀取環境變數
-        export $(grep -v '^#' .env.production | xargs)
-    else
-        print_warning "未找到 .env.production，請確保已在 Cloud Run 設定環境變數"
+    # 檢查 .env.production
+    if [ ! -f ".env.production" ]; then
+        print_error "找不到 .env.production 檔案"
+        echo "請先執行: ./setup_credentials.sh"
+        exit 1
     fi
+
+    print_warning "從 .env.production 讀取環境變數"
+
+    # 建立 Cloud Run 環境變數檔案
+    print_step "建立環境變數設定檔..."
+    cat > .env.yaml << 'EOF'
+# Cloud Run Environment Variables (Auto-generated)
+EOF
+
+    # 從 .env.production 讀取並轉換為 YAML 格式
+    while IFS='=' read -r key value; do
+        # 跳過註解和空行
+        if [[ $key =~ ^#.* ]] || [[ -z $key ]]; then
+            continue
+        fi
+
+        # 移除前後的引號
+        value=$(echo "$value" | sed -e "s/^'//" -e "s/'$//" -e 's/^"//' -e 's/"$//')
+
+        # 寫入 YAML（對於特殊字元用雙引號包裹）
+        echo "${key}: \"${value}\"" >> .env.yaml
+    done < .env.production
+
+    print_success "環境變數設定檔已建立"
 
     # 部署
     gcloud run deploy "$SERVICE_NAME" \
@@ -121,10 +142,13 @@ deploy_to_cloudrun() {
         --platform managed \
         --region "$REGION" \
         --allow-unauthenticated \
-        --set-env-vars "SPREADSHEET_ID=${SPREADSHEET_ID},LINE_CHANNEL_ACCESS_TOKEN=${LINE_CHANNEL_ACCESS_TOKEN},LINE_CHANNEL_SECRET=${LINE_CHANNEL_SECRET}" \
+        --env-vars-file .env.yaml \
         --max-instances 10 \
         --memory 512Mi \
         --timeout 300
+
+    # 清理臨時檔案
+    rm -f .env.yaml
 
     if [ $? -eq 0 ]; then
         print_success "部署成功！"
