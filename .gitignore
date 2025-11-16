@@ -52,6 +52,8 @@ env/
 htmlcov/
 .tox/
 .hypothesis/
+test_image.jpg
+test_*.jpg
 
 # Logs
 *.log
