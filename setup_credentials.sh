@@ -20,9 +20,22 @@ fi
 echo "✓ 找到 service_account.json"
 echo ""
 
-# 將 JSON 轉換為單行並移除空白
+# 將 JSON 轉換為單行（使用 jq 或 python）
 echo "正在處理 Service Account JSON..."
-GOOGLE_CREDENTIALS_JSON=$(cat service_account.json | tr -d '\n' | tr -d ' ')
+
+# 方法 1: 使用 jq（推薦）
+if command -v jq &> /dev/null; then
+    GOOGLE_CREDENTIALS_JSON=$(jq -c . service_account.json)
+    echo "✓ 使用 jq 壓縮 JSON"
+# 方法 2: 使用 python
+elif command -v python3 &> /dev/null; then
+    GOOGLE_CREDENTIALS_JSON=$(python3 -c "import json; print(json.dumps(json.load(open('service_account.json'))))")
+    echo "✓ 使用 python 壓縮 JSON"
+else
+    echo "❌ 錯誤：需要 jq 或 python3"
+    echo "請安裝 jq: brew install jq (macOS) 或 apt-get install jq (Ubuntu)"
+    exit 1
+fi
 
 # 輸出到 .env.production
 if [ -f ".env.production" ]; then
