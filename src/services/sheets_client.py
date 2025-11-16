@@ -4,6 +4,8 @@ Google Sheets Client
 提供 Google Sheets API 的封裝，處理試算表的讀寫操作。
 """
 
+import os
+import json
 import logging
 import gspread
 from google.oauth2.service_account import Credentials
@@ -37,16 +39,38 @@ class SheetsClient:
         """
         建立與 Google Sheets 的連線
 
+        支援兩種認證方式：
+        1. 從環境變數 GOOGLE_CREDENTIALS_JSON 讀取（Cloud Run）
+        2. 從檔案讀取（本地開發）
+
         Raises:
             FileNotFoundError: 憑證檔案不存在
             Exception: 連線失敗
         """
         try:
-            logger.info(f"載入憑證檔案: {self.credentials_file}")
-            creds = Credentials.from_service_account_file(
-                self.credentials_file,
-                scopes=self.scopes
-            )
+            # 方式 1: 從環境變數讀取 JSON（優先，用於 Cloud Run）
+            credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON')
+
+            if credentials_json:
+                logger.info("從環境變數載入 Google 憑證")
+                try:
+                    credentials_info = json.loads(credentials_json)
+                    creds = Credentials.from_service_account_info(
+                        credentials_info,
+                        scopes=self.scopes
+                    )
+                    logger.info("成功從環境變數載入憑證")
+                except json.JSONDecodeError as e:
+                    logger.error(f"解析環境變數 GOOGLE_CREDENTIALS_JSON 失敗: {e}")
+                    raise
+
+            # 方式 2: 從檔案讀取（本地開發）
+            else:
+                logger.info(f"從檔案載入憑證: {self.credentials_file}")
+                creds = Credentials.from_service_account_file(
+                    self.credentials_file,
+                    scopes=self.scopes
+                )
 
             logger.info("建立 gspread 客戶端")
             self._gc = gspread.authorize(creds)
